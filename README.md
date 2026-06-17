@@ -148,6 +148,37 @@ Responses pass through a `safe_parse_json()` utility that:
 
 ## 🔧 System Design
 
+### 🏗️ Data Flow & State Synchronization (P2P Local Pub/Sub)
+
+```mermaid
+graph TD
+    subgraph Client [Browser Client Runtime]
+        Teacher[Teacher Dashboard] -- "1. Broadcasts State / Nav Event" --► BC[BroadcastChannel: 'shikshaVaani-board']
+        BC -- "2. Syncs Event P2P" --► Board[Smart Board Projection]
+        Teacher -- "Web Speech API" --► Speech[Local STT / TTS Processing]
+    end
+
+    subgraph Backend [FastAPI Server on Render]
+        Teacher -- "3. HTTP POST /command" --► Cmd[Command Router]
+        Cmd -- "4. Intent: explain" --► Exp[Explain Service]
+        Cmd -- "4. Intent: quiz" --► Quiz[Quiz Service]
+    end
+
+    subgraph LLM [AI Engine]
+        Exp -- "5. Prompts" --► Cohere[Cohere Command-R+]
+        Quiz -- "5. Prompts" --► Cohere
+        Cmd -- "5. Intent Extraction" --► Cohere
+    end
+```
+
+### ⚡ Architectural Decisions & Trade-offs
+
+| Decision | What We Chose | Alternative Considered | Why it is Better for Classrooms |
+| :--- | :--- | :--- | :--- |
+| **State Sync** | **Local `BroadcastChannel` Pub/Sub** | Stateful WebSockets Server | Zero backend hosting costs, zero database overhead, and sub-millisecond sync latency. |
+| **Speech Processing** | **Browser-Native Web Speech API** | Cloud Models (Whisper/TTS) | Bypasses slow school network speeds (saves bandwidth) and runs with zero API billing. |
+| **LLM Execution** | **Intent Router -> Sub-services** | Unified Monolithic Prompt | Dramatically increases generation accuracy, saves tokens, and simplifies adding new features. |
+
 ### Request Lifecycle
 
 ```
