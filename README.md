@@ -153,21 +153,21 @@ Responses pass through a `safe_parse_json()` utility that:
 ```mermaid
 graph TD
     subgraph Client [Browser Client Runtime]
-        Teacher[Teacher Dashboard] -- "1. Broadcasts State / Nav Event" --► BC[BroadcastChannel: 'shikshaVaani-board']
-        BC -- "2. Syncs Event P2P" --► Board[Smart Board Projection]
-        Teacher -- "Web Speech API" --► Speech[Local STT / TTS Processing]
+        Teacher["Teacher Dashboard"] -->| "1. Broadcasts State / Nav Event" | BC["BroadcastChannel: 'shikshaVaani-board'"]
+        BC -->| "2. Syncs Event P2P" | Board["Smart Board Projection"]
+        Teacher -->| "Web Speech API" | Speech["Local STT / TTS Processing"]
     end
 
     subgraph Backend [FastAPI Server on Render]
-        Teacher -- "3. HTTP POST /command" --► Cmd[Command Router]
-        Cmd -- "4. Intent: explain" --► Exp[Explain Service]
-        Cmd -- "4. Intent: quiz" --► Quiz[Quiz Service]
+        Teacher -->| "3. HTTP POST /command" | Cmd["Command Router"]
+        Cmd -->| "4. Intent: explain" | Exp["Explain Service"]
+        Cmd -->| "4. Intent: quiz" | Quiz["Quiz Service"]
     end
 
     subgraph LLM [AI Engine]
-        Exp -- "5. Prompts" --► Cohere[Cohere Command-R+]
-        Quiz -- "5. Prompts" --► Cohere
-        Cmd -- "5. Intent Extraction" --► Cohere
+        Exp -->| "5. Prompts" | Cohere["Cohere Command-R+"]
+        Quiz -->| "5. Prompts" | Cohere
+        Cmd -->| "5. Intent Extraction" | Cohere
     end
 ```
 
