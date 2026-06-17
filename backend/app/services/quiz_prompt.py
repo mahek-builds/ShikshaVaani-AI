@@ -1,27 +1,10 @@
 from app.core.cohere_client import co
+from app.prompts.quiz_prompt import QUIZ_PROMPT
 import json 
 
 def generate_quiz(topic):
 
-    prompt = f"""
-Generate 5 MCQs about:
-
-{topic}
-
-Return JSON only.
-
-Format:
-
-{{
- "questions":[
-   {{
-      "question":"",
-      "options":["","","",""],
-      "answer":""
-   }}
- ]
-}}
-"""
+    prompt = QUIZ_PROMPT.format(topic=topic)
 
     response = co.chat(
         model="command-a-plus-05-2026",

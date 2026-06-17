@@ -59,7 +59,7 @@ Government schools across Haryana face a critical pedagogical gap:
 
 - Teacher speaks in natural Hinglish
 - System detects topic, grade level, and language preference
-- Google Gemini generates a structured, culturally-relevant Hinglish explanation
+- Cohere generates a structured, culturally-relevant explanation (in Hinglish, Hindi, or English)
 - Smart board displays: title → paragraph explanation → 5 emoji-tagged visual bullet points → fun fact
 - Browser TTS reads the explanation aloud — teacher stays hands-free
 
@@ -91,7 +91,7 @@ ShikshaVaani is built on a **three-layer decoupled architecture** optimized for 
 ┌────────────────────────────▼────────────────────────────────────┐
 │                   AI PROCESSING LAYER  (FastAPI)                │
 │                                                                 │
-│   /command  ──►  Intent Router (Gemini)                         │
+│   /command  ──►  Intent Router (Cohere)                         │
 │       │                   │                                     │
 │       ├──► explain  ──►  Concept Simplification Service         │
 │       └──► quiz     ──►  MCQ Generation Service                 │
@@ -161,19 +161,19 @@ Teacher speaks
      │
      ▼
 [FastAPI] command_service.py
-     │    Gemini: detect intent + extract (topic, grade, language)
+     │    Cohere: detect intent + extract (topic, grade, language)
      │    Returns: { intent, topic, grade, language }
      │
      ├─── intent == "explain" ──► POST /explain
      │                                │
      │                           explain_service.py
-     │                           Gemini: generate Hinglish explanation
+     │                           Cohere: generate explanation (in Hinglish/Hindi/English)
      │                           Returns: { title, explanation, visual_points, fun_fact }
      │
      └─── intent == "quiz" ───► POST /quiz
                                      │
-                                quiz_service.py
-                                Gemini: generate 5 MCQs as JSON
+                                quiz_prompt.py
+                                Cohere: generate 5 MCQs as JSON
                                 Returns: { quiz_title, questions: [...] }
 ```
 
@@ -191,43 +191,39 @@ shikshaVaani/
 │   │   │   └── routes.py             # All REST endpoints (/command, /explain, /quiz)
 │   │   │
 │   │   ├── core/
-│   │   │   ├── config.py             # Pydantic Settings — env var management
-│   │   │   └── gemini_client.py      # Singleton Gemini client (lazy init)
+│   │   │   ├── config.py             # env var settings
+│   │   │   └── cohere_client.py      # Cohere client initialization
 │   │   │
 │   │   ├── schemas/
 │   │   │   ├── command.py            # CommandRequest / CommandResponse models
 │   │   │   ├── explain.py            # ExplainRequest / ExplainResponse models
-│   │   │   └── quiz.py               # QuizRequest / QuizResponse / Question models
+│   │   │   └── quiz.py               # QuizRequest models
 │   │   │
 │   │   ├── services/
 │   │   │   ├── command_service.py    # Intent detection logic
 │   │   │   ├── explain_service.py    # Concept simplification pipeline
-│   │   │   └── quiz_service.py       # MCQ generation pipeline
+│   │   │   └── quiz_prompt.py        # MCQ generation service
 │   │   │
 │   │   ├── prompts/
-│   │   │   ├── command_prompt.py     # Hinglish intent extraction prompt
 │   │   │   ├── explain_prompt.py     # Concept explanation prompt template
 │   │   │   └── quiz_prompt.py        # MCQ generation prompt template
-│   │   │
-│   │   ├── utils/
-│   │   │   └── json_parser.py        # Safe JSON extraction from LLM responses
 │   │   │
 │   │   └── main.py                   # FastAPI app factory + CORS + router mount
 │   │
 │   ├── requirements.txt              # Python dependencies
-│   ├── .env.example                  # Template for env vars
-│   └── Dockerfile                    # Container definition
+│   └── .env.example                  # Template for env vars
 │
-├── frontend/                         # Next.js Application (optional - to be added)
+├── frontend/                         # Next.js Application
 │   ├── components/
 │   │   ├── VoiceCapture.jsx          # Mic button + Web Speech API hook
 │   │   ├── SmartBoardDisplay.jsx     # Fullscreen projection wrapper
 │   │   ├── ExplainCard.jsx           # Explanation display component
 │   │   └── QuizDisplay.jsx           # MCQ display + timer component
 │   │
-│   └── pages/
-│       ├── index.jsx                 # Teacher dashboard
-│       └── board.jsx                 # Smart board projection
+│   └── app/                          # Next.js App Router
+│       ├── page.js                   # Teacher dashboard
+│       └── board/
+│           └── page.js               # Smart board projection
 │
 └── README.md                         # This file
 ```
@@ -241,7 +237,7 @@ shikshaVaani/
 | Requirement | Version | Check |
 |-----------|---------|-------|
 | Python | ≥ 3.11 | `python --version` |
-| Google Gemini API Key | Free tier OK | [ai.google.dev](https://ai.google.dev/) |
+| Cohere API Key | Standard Tier OK | [dashboard.cohere.com](https://dashboard.cohere.com/) |
 
 ---
 
@@ -267,7 +263,7 @@ pip install -r requirements.txt
 
 # Configure environment
 cp .env.example .env
-# Edit .env and set GEMINI_API_KEY=your_key_here
+# Edit .env and set COHERE_API_KEY=your_key_here
 
 # Start the development server
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
@@ -452,7 +448,7 @@ Required JSON structure:
 
 ```
 # ── Required ──────────────────────────────────────────────────────────
-GEMINI_API_KEY=your_gemini_api_key_here
+COHERE_API_KEY=your_cohere_api_key_here
 
 # ── Application ───────────────────────────────────────────────────────
 APP_NAME=ShikshaVaani API
@@ -460,7 +456,7 @@ ENVIRONMENT=development          # development | staging | production
 LOG_LEVEL=INFO                   # DEBUG | INFO | WARNING | ERROR
 ```
 
-Get your Gemini API key from: [ai.google.dev](https://ai.google.dev/)
+Get your Cohere API key from: [dashboard.cohere.com](https://dashboard.cohere.com/)
 
 ---
 
@@ -468,11 +464,11 @@ Get your Gemini API key from: [ai.google.dev](https://ai.google.dev/)
 
 | Layer | Technology | Version | Purpose |
 |-------|-----------|---------|---------|
-| **LLM** | Google Gemini | Latest | Hinglish generation, intent detection |
+| **LLM** | Cohere | Latest | Text generation, intent detection |
 | **Backend** | FastAPI | 0.110+ | Async REST API, auto Swagger docs |
 | **Validation** | Pydantic v2 | 2.6+ | Request/response schema enforcement |
 | **Server** | Uvicorn | 0.29+ | ASGI server for FastAPI |
-| **STT** | Web Speech API | Browser | Hinglish speech-to-text (hi-IN) |
+| **STT** | Web Speech API | Browser | Hinglish/Hindi speech-to-text (hi-IN) |
 | **TTS** | Web Speech Synthesis | Browser | Voice narration |
 | **Font** | Noto Sans Devanagari | — | Full Hindi Unicode rendering |
 

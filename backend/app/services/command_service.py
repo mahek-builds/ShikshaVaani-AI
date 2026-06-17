@@ -11,21 +11,32 @@ Analyze this voice command:
 {text}
 
 Extract:
-
 1. intent (explain or quiz)
 2. topic
 3. grade
 4. language
 
+Rules:
+- If a parameter (like grade or language) is not explicitly mentioned in the voice command, set its value to "Unknown" (do not guess).
+
 Return ONLY valid JSON.
 
-Example:
-
+Example 1:
+Voice command: "Explain photosynthesis class 6 in Hindi"
 {{
     "intent": "explain",
     "topic": "photosynthesis",
     "grade": "6",
     "language": "Hindi"
+}}
+
+Example 2:
+Voice command: "Quiz on water cycle"
+{{
+    "intent": "quiz",
+    "topic": "water cycle",
+    "grade": "Unknown",
+    "language": "Unknown"
 }}
 """
 
@@ -53,13 +64,13 @@ Example:
                 return {
                     "intent": "explain",
                     "topic": text,
-                    "grade": "6",
-                    "language": "English"
+                    "grade": "Unknown",
+                    "language": "Unknown"
                 }
 
     return {
         "intent": "explain",
         "topic": text,
-        "grade": "6",
-        "language": "English"
+        "grade": "Unknown",
+        "language": "Unknown"
     }
