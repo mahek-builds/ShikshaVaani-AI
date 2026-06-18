@@ -571,6 +571,10 @@ Get your Cohere API key from: [dashboard.cohere.com](https://dashboard.cohere.co
 | **Server** | Uvicorn | 0.29+ | ASGI server for FastAPI |
 | **Database** | SQLite (SQLAlchemy) | Latest | Explanation schema caching and history storage |
 | **Container** | Docker | Latest | Production-ready containerization deployment |
+| **Frontend Framework** | Next.js (App Router) | 15.0+ | Serverless-ready React framework |
+| **UI Library** | React | 19.0+ | Component-driven UI rendering |
+| **HTTP Client** | Axios | 1.18.0 | Promise-based HTTP client for API requests |
+| **State Sync** | BroadcastChannel API | Browser | P2P local state synchronization between tabs |
 | **STT** | Web Speech API | Browser | Hinglish/Hindi speech-to-text (hi-IN) |
 | **TTS** | Web Speech Synthesis | Browser | Voice narration |
 | **Font** | Noto Sans Devanagari | — | Full Hindi Unicode rendering |
