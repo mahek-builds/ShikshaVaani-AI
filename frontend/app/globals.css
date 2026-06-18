@@ -2415,4 +2415,101 @@ body {
   }
 }
 
+/* ── Recent Activity / DB Cache Styles ── */
+.recent-activity {
+  width: 100%;
+  margin-top: var(--space-6);
+  animation: slide-up 0.4s ease-out;
+}
+
+.recent-activity h3 {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--space-4);
+  letter-spacing: 0.02em;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.activity-item.clickable {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: var(--radius-lg);
+  transition: all var(--transition-base);
+  position: relative;
+  overflow: hidden;
+}
+
+.activity-item.clickable:hover {
+  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+}
+
+.activity-icon {
+  font-size: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.activity-item.clickable:hover .activity-icon {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.activity-text {
+  flex: 1;
+  font-size: 15px;
+}
+
+.activity-text strong {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  color: #ffffff;
+}
+
+.activity-title-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  display: inline-block;
+  margin-top: 2px;
+}
+
+.activity-badge {
+  padding: 6px 14px;
+  background: rgba(0, 242, 254, 0.08);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(0, 242, 254, 0.2);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.activity-item.clickable:hover .activity-badge {
+  background: var(--accent-cyan);
+  color: #05040f;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+}
+
+
 

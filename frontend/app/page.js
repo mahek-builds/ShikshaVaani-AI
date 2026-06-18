@@ -78,6 +78,46 @@ export default function DashboardPage() {
     return () => { cancelled = true; clearInterval(interval); };
   }, []);
 
+  const fetchHistory = useCallback(async () => {
+    try {
+      const { getHistory } = await import('../utils/api');
+      const data = await getHistory();
+      setRecentActivity(data);
+    } catch (err) {
+      console.error("Failed to load history:", err);
+    }
+  }, []);
+
+  // Fetch history on mount
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  const handleLoadHistoryItem = useCallback((item) => {
+    const formattedContent = {
+      type: 'explain',
+      data: {
+        title: item.title,
+        explanation: item.explanation,
+        analogy: item.analogy,
+        visual_points: item.visual_points,
+        key_terms: item.key_terms,
+        fun_fact: item.fun_fact
+      },
+      meta: {
+        topic: item.topic,
+        grade: item.grade,
+        language: item.language
+      }
+    };
+    setContent(formattedContent);
+    if (channel) channel.postMessage({ type: 'content', payload: formattedContent });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('shikshaVaani-content', JSON.stringify(formattedContent));
+      localStorage.removeItem('shikshaVaani-quizState');
+    }
+  }, [channel]);
+
   const broadcastContent = useCallback((newContent) => {
     if (channel) channel.postMessage({ type: 'content', payload: newContent });
   }, [channel]);
@@ -100,17 +140,10 @@ export default function DashboardPage() {
       localStorage.removeItem('shikshaVaani-quizState');
     }
 
-    if (result) {
-      const activity = {
-        id: Date.now(),
-        type: result.type,
-        topic: result.meta?.topic || 'Unknown',
-        grade: result.meta?.grade || '—',
-        timestamp: new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
-      };
-      setRecentActivity((prev) => [activity, ...prev].slice(0, 5));
+    if (result && result.type === 'explain') {
+      fetchHistory();
     }
-  }, [broadcastContent]);
+  }, [broadcastContent, fetchHistory]);
 
   const handleClearContent = useCallback(() => {
     setContent(null);
@@ -317,21 +350,26 @@ export default function DashboardPage() {
             </section>
           )}
 
-          {/* ── Recent Activity ── */}
+          {/* ── Recent Activity (Database Cache) ── */}
           {recentActivity.length > 0 && (
             <div className="recent-activity">
-              <h3>Recent Activity</h3>
+              <h3>Saved Explanations (DB Cache)</h3>
               <div className="activity-list">
                 {recentActivity.map((item) => (
-                  <div className="activity-item" key={item.id}>
-                    <span className="activity-icon">{item.type === 'explain' ? '📖' : '📝'}</span>
+                  <div
+                    className="activity-item clickable"
+                    key={item.id}
+                    onClick={() => handleLoadHistoryItem(item)}
+                    title="Click to load onto Smart Board"
+                  >
+                    <span className="activity-icon">📖</span>
                     <div className="activity-text">
-                      <strong>{item.topic}</strong> — Class {item.grade}
+                      <strong>{item.topic}</strong> — Class {item.grade} ({item.language})
                       <br />
-                      <span>{item.timestamp}</span>
+                      <span className="activity-title-sub">{item.title || 'Untitled'}</span>
                     </div>
-                    <span className={`activity-badge ${item.type}`}>
-                      {item.type === 'explain' ? 'Explained' : 'Quiz'}
+                    <span className="activity-badge explain">
+                      Load to Board 📺
                     </span>
                   </div>
                 ))}

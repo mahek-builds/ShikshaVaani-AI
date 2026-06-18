@@ -4,3 +4,5 @@ backend/.env
 _venv/
 __pycache__/
 *.pyc
+database/
+*.db

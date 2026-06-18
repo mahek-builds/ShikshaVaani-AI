@@ -124,4 +124,20 @@ export async function getQuiz(topic, grade, numQuestions = 5) {
   }
 }
 
+/**
+ * Fetch explanation history from the database cache.
+ * GET /history
+ * @returns {Promise<Array>} List of cached explanations
+ */
+export async function getHistory() {
+  try {
+    const response = await api.get('/history');
+    return response.data.data || [];
+  } catch (error) {
+    console.error('Failed to fetch history:', error);
+    return [];
+  }
+}
+
 export default api;
+
