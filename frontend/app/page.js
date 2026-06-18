@@ -98,7 +98,7 @@ export default function DashboardPage() {
       type: 'explain',
       data: {
         title: item.title,
-        explanation: item.explanation,
+        explanation: item.explanation || item.explaination,
         analogy: item.analogy,
         visual_points: item.visual_points,
         key_terms: item.key_terms,
