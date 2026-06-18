@@ -219,11 +219,19 @@ shikshaVaani/
 │   ├── app/
 │   │   │
 │   │   ├── api/
-│   │   │   └── routes.py             # All REST endpoints (/command, /explain, /quiz)
+│   │   │   └── routes.py             # All REST endpoints (/command, /explain, /quiz, /history)
 │   │   │
 │   │   ├── core/
 │   │   │   ├── config.py             # env var settings
+│   │   │   ├── database.py           # SQLite engine, session & auto table creator
 │   │   │   └── cohere_client.py      # Cohere client initialization
+│   │   │
+│   │   ├── crud/                     # Database CRUD operations
+│   │   │   └── explanation.py        # Lookup and write operations for cache
+│   │   │
+│   │   ├── models/                   # SQLAlchemy Models
+│   │   │   ├── explaination.py       # Explanation schema definition
+│   │   │   └── __init__.py           # Model exports
 │   │   │
 │   │   ├── schemas/
 │   │   │   ├── command.py            # CommandRequest / CommandResponse models
@@ -232,7 +240,7 @@ shikshaVaani/
 │   │   │
 │   │   ├── services/
 │   │   │   ├── command_service.py    # Intent detection logic
-│   │   │   ├── explain_service.py    # Concept simplification pipeline
+│   │   │   ├── explain_service.py    # Concept simplification pipeline (cached)
 │   │   │   └── quiz_prompt.py        # MCQ generation service
 │   │   │
 │   │   ├── prompts/
@@ -242,6 +250,7 @@ shikshaVaani/
 │   │   └── main.py                   # FastAPI app factory + CORS + router mount
 │   │
 │   ├── requirements.txt              # Python dependencies
+│   ├── Dockerfile                    # Containerization config for production deploy
 │   └── .env.example                  # Template for env vars
 │
 ├── frontend/                         # Next.js Application
@@ -306,6 +315,28 @@ uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 curl http://localhost:8000/
 # Interactive API docs: http://localhost:8000/docs
 ```
+
+---
+
+### Option B — Docker Container Setup (Alternative)
+
+If you prefer containerized environments or want to mirror the production build:
+
+#### Step 1 — Build Docker Image
+```bash
+# Navigate to backend directory
+cd backend
+
+# Build image
+docker build -t shikshavaani-backend .
+```
+
+#### Step 2 — Run Container
+```bash
+# Run container, forwarding port 8000 and providing environmental variables
+docker run -d -p 8000:7860 --env-file .env shikshavaani-backend
+```
+*Note: Make sure to create your `.env` file inside the `backend/` folder first, containing your `COHERE_API_KEY`.*
 
 ---
 
@@ -409,6 +440,45 @@ Generates a complete quiz set for classroom assessment.
 
 ---
 
+#### `GET /history` — Fetch Explanation History
+
+Fetches the latest 10 concept simplified explanations stored in the SQLite database cache. Used to render the recent activity history block.
+
+**Request:**
+No payload.
+
+**Response (200 OK):**
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "topic": "Photosynthesis",
+      "grade": "6",
+      "language": "Hindi",
+      "title": "Photosynthesis — Suraj se Khana Banana",
+      "explaination": "Dekho bhai, jab plant sunlight lete hai, paani aur CO2 se apna khana khud banata hai...",
+      "analogy": "Jaise hum kitchen mein gas aur raw vegetables se khana banate hain...",
+      "visual_points": [
+        "☀️ Sunlight — energy source",
+        "💧 Water (H2O) — roots se aata hai"
+      ],
+      "key_terms": [
+        {
+          "term": "Chlorophyll",
+          "meaning": "Green pigment jo sunlight ko capture karta hai"
+        }
+      ],
+      "fun_fact": "Ek ped ek din mein 100 litres paani absorb kar sakta hai!"
+    }
+  ]
+}
+```
+```
+
+---
+
 ## 🧠 Prompt Engineering
 
 ShikshaVaani's output quality is driven by three carefully engineered prompt templates in `app/prompts/`.
@@ -499,6 +569,8 @@ Get your Cohere API key from: [dashboard.cohere.com](https://dashboard.cohere.co
 | **Backend** | FastAPI | 0.110+ | Async REST API, auto Swagger docs |
 | **Validation** | Pydantic v2 | 2.6+ | Request/response schema enforcement |
 | **Server** | Uvicorn | 0.29+ | ASGI server for FastAPI |
+| **Database** | SQLite (SQLAlchemy) | Latest | Explanation schema caching and history storage |
+| **Container** | Docker | Latest | Production-ready containerization deployment |
 | **STT** | Web Speech API | Browser | Hinglish/Hindi speech-to-text (hi-IN) |
 | **TTS** | Web Speech Synthesis | Browser | Voice narration |
 | **Font** | Noto Sans Devanagari | — | Full Hindi Unicode rendering |
