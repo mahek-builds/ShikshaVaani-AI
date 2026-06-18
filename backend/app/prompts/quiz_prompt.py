@@ -11,18 +11,18 @@ Rules:
 5. Include a short explanation for the correct answer.
 6. Return exactly this JSON:
 
-{
+{{
  "quiz_title": "...",
  "questions": [
-  {
+  {{
    "id": 1,
    "question": "...",
    "options": ["A. ...", "B. ...", "C. ...", "D. ..."],
    "answer": "A",
    "explanation": "..."
-  }
+  }}
  ]
-}
+}}
 
 Return ONLY valid JSON. No markdown, no preamble.
 """
