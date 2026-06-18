@@ -3,5 +3,6 @@ from typing import Optional
 
 class QuizRequest(BaseModel):
     topic: str
-    grade: Optional[str] = None
+    grade: str
+    language: str
     num_questions: Optional[int] = 5

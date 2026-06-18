@@ -2,9 +2,14 @@ from app.core.cohere_client import co
 from app.prompts.quiz_prompt import QUIZ_PROMPT
 import json 
 
-def generate_quiz(topic):
+def generate_quiz(topic, grade="6", language="Hinglish", num_questions=5):
 
-    prompt = QUIZ_PROMPT.format(topic=topic)
+    prompt = QUIZ_PROMPT.format(
+        topic=topic,
+        grade=grade or "6",
+        language=language or "Hinglish",
+        num_questions=num_questions or 5
+    )
 
     response = co.chat(
         model="command-a-plus-05-2026",

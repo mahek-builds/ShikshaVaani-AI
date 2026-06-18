@@ -67,11 +67,11 @@ export default function VoiceCapture({
           meta: { ...command, intent: 'explain', grade: resolvedGrade, language: resolvedLanguage, topic: command.topic || text }
         });
       } else if (resolvedIntent === 'quiz') {
-        const quiz = await getQuiz(command.topic || text, resolvedGrade, 5);
+        const quiz = await getQuiz(command.topic || text, resolvedGrade, resolvedLanguage, 5);
         onCommand({
           type: 'quiz',
           data: quiz,
-          meta: { ...command, intent: 'quiz', grade: resolvedGrade, topic: command.topic || text }
+          meta: { ...command, intent: 'quiz', grade: resolvedGrade, language: resolvedLanguage, topic: command.topic || text }
         });
       } else {
         setApiError(`Unknown command intent: "${resolvedIntent}". Try saying "Explain..." or "Quiz on..."`);

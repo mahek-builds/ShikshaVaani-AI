@@ -40,7 +40,10 @@ def quiz(data: QuizRequest):
     return {
         "success": True,
         "data": generate_quiz(
-            data.topic
+            topic=data.topic,
+            grade=data.grade,
+            language=data.language,
+            num_questions=data.num_questions
         )
     }
 

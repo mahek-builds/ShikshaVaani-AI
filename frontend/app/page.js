@@ -179,8 +179,8 @@ export default function DashboardPage() {
         handleCommand({ type: 'explain', data, meta: { topic, grade: selectedGrade, language: selectedLanguage } });
       } else {
         const { getQuiz } = await import('../utils/api');
-        const data = await getQuiz(topic, selectedGrade, 5);
-        handleCommand({ type: 'quiz', data, meta: { topic, grade: selectedGrade } });
+        const data = await getQuiz(topic, selectedGrade, selectedLanguage, 5);
+        handleCommand({ type: 'quiz', data, meta: { topic, grade: selectedGrade, language: selectedLanguage } });
       }
     } catch (err) {
       console.error(err);

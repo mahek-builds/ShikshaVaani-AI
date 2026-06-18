@@ -111,11 +111,12 @@ export async function getExplanation(topic, grade, language) {
  * @param {number} numQuestions
  * @returns {{ quiz_title: string, questions: Array<{ id: number, question: string, options: string[], answer: string, explanation: string }> }}
  */
-export async function getQuiz(topic, grade, numQuestions = 5) {
+export async function getQuiz(topic, grade, language, numQuestions = 5) {
   try {
     const response = await api.post('/quiz', {
       topic,
       grade,
+      language,
       num_questions: numQuestions,
     });
     return response.data.data || response.data;
