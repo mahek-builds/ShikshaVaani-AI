@@ -17,10 +17,6 @@ app.add_middleware(
     allow_headers=["*"],    
 )
 
-@app.get("/")
-def read_root():
-    return {"Hello": "world"}
-
 @app.get("/health")
 def health():
     return {"status": "ok"}
